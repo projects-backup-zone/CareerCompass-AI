@@ -1,330 +1,211 @@
-# 🧭 CareerCompass AI – Autonomous Career Mentor
+# 🧭 CareerCompass AI
 
-> **An AI-powered career mentoring platform that analyzes resumes, compares them against industry requirements, identifies skill gaps, evaluates ATS compatibility, and generates personalized career roadmaps using Google's Gemini 2.5 Flash.**
+**CareerCompass AI** is a full-stack web application that helps tech professionals align their resumes with modern industry demands. Powered by Google's **Gemini 2.5 Flash** model via a **secure serverless backend**, it parses resumes, compares them against target roles or job descriptions, and generates actionable, personalized learning plans.
 
----
-
-## 🌐 Live Demo
-
-🔗 https://career-compass-22n1jng9q-venkata-sai-srija-bala-badruni.vercel.app
+> [!IMPORTANT]
+> The API key is now a **server-side secret only**. It is stored in `GEMINI_API_KEY` (never `VITE_GEMINI_API_KEY`) and is never bundled into the frontend build or visible in the browser's Network tab.
 
 ---
 
-## 📂 GitHub Repository
+## ⚠️ Problem Statement
 
-🔗 https://github.com/srijabala/CareerCompass-AI
-
----
-# 📖 Overview
-
-CareerCompass AI is an AI-powered career guidance platform designed to help students, fresh graduates, and professionals understand how well their resumes align with today's job market.
-
-Instead of simply scanning resumes, CareerCompass AI evaluates a candidate's profile, compares it with target job requirements, identifies missing skills, provides recruiter-style feedback, and generates personalized learning roadmaps to improve career readiness.
-
-The application is built using **React**, **Vite**, **Tailwind CSS**, and **Google Gemini 2.5 Flash**, while keeping all user data private through a client-side architecture.
+Job seekers in the modern tech market face significant hurdles in landing interviews:
+1. **The Black Box of ATS:** Applicant Tracking Systems filter out up to 75% of resumes automatically.
+2. **Rapidly Evolving Tech Stacks:** Candidates struggle to identify critical skill gaps relative to active market demand.
+3. **Lack of Actionable Roadmaps:** Knowing a skill is missing is only half the battle.
 
 ---
 
-# ⚠️ Problem Statement
+## 🔐 Secure Architecture
 
-Today's job seekers face several challenges when applying for technical roles.
+All Gemini API calls now flow through **Vercel serverless functions** (`/api`). The frontend never contacts Google's API directly.
 
-### 📄 Applicant Tracking Systems (ATS)
-
-Most companies use Applicant Tracking Systems (ATS) to automatically filter resumes before recruiters review them. Candidates often receive no explanation when their resume is rejected because of missing keywords or poor alignment with job requirements.
-
-### 📈 Rapidly Changing Industry Requirements
-
-Technology evolves rapidly, making it difficult for candidates to understand which technical skills are currently in demand and how their profiles compare with industry expectations.
-
-### 🎯 Lack of Personalized Career Guidance
-
-Many resume analyzers identify missing skills but fail to provide a structured, personalized roadmap explaining what to learn next and how to improve based on an individual's background.
-
----
-
-# 💡 Solution
-
-CareerCompass AI addresses these challenges by providing an intelligent career mentoring experience that:
-
-- 📄 Analyzes resumes using AI.
-- 🎯 Matches resumes against target roles or job descriptions.
-- 📊 Calculates ATS compatibility.
-- 📉 Detects missing skills and important keywords.
-- 📋 Generates recruiter-style feedback.
-- 🛣️ Builds personalized 30-60-90 day learning roadmaps.
-- 💼 Creates AI-powered mock interview preparation.
-
----
-
-# 🤖 AI Agent Workflow
-
-CareerCompass AI follows a multi-agent workflow where each AI agent performs a specialized task before passing its output to the next stage.
-
-| AI Agent | Responsibility |
-|-----------|----------------|
-| 🛠️ **Profile Analysis Agent** | Extracts skills, education, projects, certifications, and professional experience from the uploaded resume. |
-| 🎯 **Career Matching Agent** | Compares the candidate's profile against target roles or job descriptions, calculates ATS compatibility, and identifies critical skill gaps. |
-| 📋 **Career Mentor Agent** | Generates recruiter-style feedback, creates personalized learning roadmaps, and prepares mock interview questions based on identified weaknesses. |
-
----
-
-# 🔄 Application Workflow
-
-```text
-Upload Resume
-      │
-      ▼
-Resume Analysis
-      │
-      ▼
-Skill Extraction
-      │
-      ▼
-Job Description Comparison
-      │
-      ▼
-ATS Match Score
-      │
-      ▼
-Skill Gap Analysis
-      │
-      ▼
-Recruiter Feedback
-      │
-      ▼
-30-60-90 Day Roadmap
-      │
-      ▼
-Mock Interview Preparation
+```
+Browser (React)
+     │
+     │  POST /api/analyze-resume     (image + role)
+     │  POST /api/match-jd           (analysis + JD text)
+     │  POST /api/generate-sprint    (analysis)
+     │  POST /api/evaluate-interview (question + answer)
+     ▼
+Vercel Serverless Functions (/api/*.js)
+     │  reads GEMINI_API_KEY from server env — never exposed
+     ▼
+Google Gemini 2.5 Flash API
 ```
 
----
-
-# ✨ Features
-
-## 📄 AI Resume Analysis
-
-- Resume upload
-- Skill extraction
-- Resume evaluation
-- Recruiter-style feedback
-
-## 🎯 Job Description Matcher
-
-- Compare resume with job descriptions
-- ATS compatibility score
-- Missing keyword detection
-- Resume improvement suggestions
-
-## 📊 Career Dashboard
-
-- Market alignment score
-- Target role analysis
-- Skill gap visualization
-- Critical skills identification
-
-## 🛣️ Personalized Learning Roadmap
-
-Generates:
-
-- 30-Day Learning Plan
-- 60-Day Learning Plan
-- 90-Day Learning Plan
-
-Including:
-
-- Learning resources
-- Weekly goals
-- Recommended projects
-- Certifications
-
-## 💼 AI Mock Interview
-
-- Personalized interview questions
-- Recruiter feedback
-- Improvement suggestions
-
-## 💾 Local Storage
-
-- Saves previous analysis
-- Stores learning roadmaps
-- Preserves reports across browser sessions
-
-## 🔒 Privacy First
-
-- Frontend-only architecture built with React and Vite
-- User data is stored locally using browser Local Storage
-- API keys are managed securely through environment variables (`.env`)
-- Sensitive credentials are excluded from version control using `.gitignore`
+**Security measures in every API route:**
+- Server-side `GEMINI_API_KEY` only — no `VITE_` prefix, never in the bundle
+- In-memory sliding-window **rate limiting** (30 req/min per IP)
+- **Input validation** and size limits on all fields
+- **Sanitized error messages** — raw API errors / keys are never forwarded to the client
+- Security response headers (`X-Content-Type-Options`, `X-Frame-Options`, `Cache-Control: no-store`)
+- Method enforcement (all routes accept `POST` only)
 
 ---
 
-# 🛠️ Technology Stack
+## 🤖 AI Agent Workflow
 
-| Technology | Purpose |
-|------------|---------|
-| React 19 | Frontend Framework |
-| Vite | Development & Build Tool |
-| Tailwind CSS v4 | Styling |
-| Framer Motion | Animations |
-| Lucide React | Icons |
-| Google Gemini 2.5 Flash | AI Engine |
-| Local Storage | Persistent Data |
-| Vercel | Application Deployment |
+| Agent | Serverless Route | Responsibility |
+|---|---|---|
+| **Agent Core** (Profiling) | `POST /api/analyze-resume` | Parses resume image, scores market alignment |
+| **Agent Matcher** (ATS) | `POST /api/match-jd` | Compares profile to a job description |
+| **Agent Reviewer** (Coach) | `POST /api/generate-sprint` | Builds 30-60-90 day skill sprint plan |
+| **Mock Interviewer** | `POST /api/evaluate-interview` | Evaluates candidate's interview answers |
 
 ---
 
-# 📸 Screenshots
+## ✨ Features
 
-## 🏠 Landing Page
-
-<img width="1919" height="866" alt="image" src="https://github.com/user-attachments/assets/f7b5a40b-e2f2-4ac3-8ceb-409df4f2aff0" />
-
-
----
-
-## 📊 Dashboard
-
-<img width="1918" height="861" alt="image" src="https://github.com/user-attachments/assets/67adf9b0-4f5b-48a1-9916-402abdbfb59f" />
-
+- **🔍 AI Resume Audit & Alignment** – Upload resume image → live market score, skill gaps, recruiter feedback
+- **📊 30-60-90 Day Sprint Roadmap** – Week-by-week learning plan generated from your skill gaps
+- **⚡ Job Description Matcher** – ATS score, keyword analysis, and resume tweak suggestions
+- **🎤 Adaptive Mock Interview** – Tailored questions + live AI feedback on your answers
+- **💾 Local Persistence** – Analysis, sprint plan, and applied jobs cached in `localStorage`
+- **⚠️ Active Audit Protection** – Modal prevents accidental navigation during an active session
 
 ---
 
-## 📄 Resume Analysis
+## 🛠️ Technology Stack
 
-<img width="1244" height="710" alt="image" src="https://github.com/user-attachments/assets/335014ae-b8e4-4f16-838d-4307f58a9551" />
-
-
----
-
-## 🎯 Job Description Matcher
-
-<img width="1891" height="687" alt="image" src="https://github.com/user-attachments/assets/67cf01ee-820a-4241-888c-a76ea1b58abd" />
-
-
----
-
-## 📉 Skill Gap Analysis
-
-<img width="585" height="748" alt="image" src="https://github.com/user-attachments/assets/7b8cc6dd-98cb-411c-a23c-da494aa7e52d" />
-
+| Layer | Technology |
+|---|---|
+| Frontend | React 19 + Vite |
+| Styling | Tailwind CSS v4 |
+| Animations | Framer Motion |
+| Icons | Lucide React |
+| Backend | Vercel Serverless Functions (Node.js) |
+| AI Engine | Google Gemini 2.5 Flash (`@google/generative-ai`) |
 
 ---
 
-## 🛣️ Learning Roadmap
-<img width="1144" height="730" alt="image" src="https://github.com/user-attachments/assets/e0c1fa9c-e49f-4fc9-b0fd-8bc67d338a92" />
+## 🚀 Getting Started (Local Development)
 
+### Prerequisites
+- [Node.js](https://nodejs.org/) v18+
+- [Vercel CLI](https://vercel.com/docs/cli): `npm i -g vercel`
 
-
----
-
-## 💼 Mock Interview
-
-<img width="1207" height="516" alt="image" src="https://github.com/user-attachments/assets/d0a58778-9015-4e17-89d8-45939d2731cd" />
-
-
----
-
-# 🚀 Installation
-
-## Clone the Repository
+### Installation
 
 ```bash
-git clone https://github.com/srijabala/CareerCompass-AI.git
-```
-
-Move into the project folder
-
-```bash
-cd CareerCompass-AI
-```
-
-Install dependencies
-
-```bash
+git clone <your-repo-url>
+cd capstone
 npm install
 ```
 
-Create a `.env` file
+### Environment Variables
+
+Create a `.env` file in the project root (this file is git-ignored):
 
 ```env
-VITE_GEMINI_API_KEY=your_gemini_api_key_here
+# Server-only — NEVER prefix with VITE_
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
-Start the development server
+Get a free key from [Google AI Studio](https://aistudio.google.com/).
 
+> [!WARNING]
+> **Never** use `VITE_GEMINI_API_KEY`. Anything prefixed `VITE_` is embedded in the client bundle and visible to anyone who opens DevTools.
+
+### Running Locally
+
+The local setup requires **two terminals** running simultaneously:
+
+**Terminal 1 — Vercel dev server** (runs the serverless `/api` functions and reads `.env`):
+```bash
+vercel dev --listen 3000
+```
+
+**Terminal 2 — Vite dev server** (serves the React app, proxies `/api` → `localhost:3000`):
 ```bash
 npm run dev
 ```
 
-Open:
+Then open **http://localhost:5173** in your browser.
+
+> [!NOTE]
+> `vite.config.js` is pre-configured to proxy all `/api/*` requests from port 5173 to port 3000, so the browser never talks to Gemini directly even during development.
+
+---
+
+## 📦 Vercel Deployment
+
+### Step 1 — Link to Vercel
+```bash
+vercel
+```
+Follow the prompts to connect your project.
+
+### Step 2 — Set the Environment Variable
+In the [Vercel Dashboard](https://vercel.com/dashboard):
+
+1. Open your project → **Settings** → **Environment Variables**
+2. Add a new variable:
+   - **Name:** `GEMINI_API_KEY`
+   - **Value:** your Gemini API key
+   - **Environments:** Production, Preview, Development ✓
+3. Click **Save**
+
+> [!CAUTION]
+> Do **not** add `VITE_GEMINI_API_KEY` to Vercel. Only add `GEMINI_API_KEY` (no VITE prefix). The former would be baked into your public JavaScript bundle.
+
+### Step 3 — Deploy
+```bash
+vercel --prod
+```
+
+Vercel automatically detects the `api/` folder and deploys each `.js` file as an independent serverless function.
+
+---
+
+## 📁 Project Structure
 
 ```
-http://localhost:5173
-```
----
-## Deployment
-
-This application is deployed using **Vercel**.
-
-The live application can be accessed from the Live Demo section above.
----
-
-# 📁 Project Structure
-
-```
-src/
-│
-├── components/
-├── pages/
-├── hooks/
-├── utils/
-├── assets/
-├── App.jsx
-└── main.jsx
-
-public/
-
-README.md
-
-package.json
+capstone/
+├── api/                        # ← Vercel serverless functions (server-side only)
+│   ├── _utils.js               #   Shared: Gemini client, rate limiter, error handler
+│   ├── analyze-resume.js       #   POST /api/analyze-resume
+│   ├── match-jd.js             #   POST /api/match-jd
+│   ├── generate-sprint.js      #   POST /api/generate-sprint
+│   └── evaluate-interview.js   #   POST /api/evaluate-interview
+├── src/
+│   ├── utils/
+│   │   ├── api.js              # ← Frontend HTTP client (calls /api, NO key here)
+│   │   └── gemini.js           #   Re-export shim (backward compat)
+│   ├── components/
+│   │   ├── ResumeUpload.jsx
+│   │   └── Navbar.jsx
+│   ├── pages/
+│   │   ├── Dashboard.jsx
+│   │   └── LandingPage.jsx
+│   └── ...
+├── .env                        # Local secrets (git-ignored)
+├── .env.example                # Template — commit this, not .env
+├── vercel.json                 # Vercel project config
+└── vite.config.js              # Vite + /api proxy for local dev
 ```
 
 ---
 
-# 🎯 Future Enhancements
+## 🔑 Required Environment Variables
 
-- Adaptive technical skill assessment
-- AI confidence-based career recommendations
-- Recruiter simulation dashboard
-- Resume version comparison
-- LinkedIn profile integration
-- PDF career report generation
-- Cloud synchronization
-- Multi-language resume support
+| Variable | Location | Description |
+|---|---|---|
+| `GEMINI_API_KEY` | Vercel Dashboard + `.env` | Google Gemini API key. **Server-only. Never VITE_ prefix.** |
 
 ---
 
-# 🔐 Security
+## 🛡️ Security Checklist
 
-- Environment variables managed using `.env`
-- API keys excluded from version control using `.gitignore`
-- User information stored locally using browser storage
-- No sensitive credentials committed to GitHub
-
----
-
-# 👨‍💻 Developed By
-
-**Venkata Sai Srija Bala Badruni**
-
-Capstone Project • 2026
+- [x] API key is never in `src/` or any file Vite bundles
+- [x] No `VITE_GEMINI_API_KEY` anywhere in the codebase
+- [x] Direct calls to `generativelanguage.googleapis.com` removed from frontend
+- [x] Rate limiting on every endpoint (30 req/min per IP)
+- [x] Input validation and size limits on all API routes
+- [x] Error messages sanitized — no internal paths or key values forwarded
+- [x] `.env` is git-ignored; `.vercel/` is git-ignored
 
 ---
 
-# 📄 License
-
-This project was developed for educational and academic purposes as part of a capstone submission.
-
-Developed as part of the Kaggle AI Agents Capstone Project (2026).
+## 🛡️ License
+This project is open-source and available under the [MIT License](LICENSE).

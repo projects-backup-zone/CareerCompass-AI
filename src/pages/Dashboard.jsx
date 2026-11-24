@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { KPI_DATA, RECOMMENDED_JOBS } from '../data/mockData';
 import ResumeUpload from '../components/ResumeUpload';
-import { matchJobDescription, generateSkillSprint } from '../utils/gemini';
+import { matchJobDescription, generateSkillSprint, evaluateInterviewAnswer } from '../utils/api';
 
 export default function Dashboard({ onAnalysisStateChange }) {
   const [selectedJob, setSelectedJob] = useState(null);
@@ -145,42 +145,21 @@ export default function Dashboard({ onAnalysisStateChange }) {
     setActiveSubTab('jobs'); // Switch to main recommendations once complete
   };
 
-  // Evaluate user mock interview answer using Gemini API key locally if available
+  // Evaluate user mock interview answer via secure backend
   const handleAnswerSubmit = async () => {
     if (!userAnswer.trim()) return;
     setIsEvaluatingAnswer(true);
     setInterviewFeedback('');
 
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      // Return placeholder feedback if key is somehow missing
-      setTimeout(() => {
-        setInterviewFeedback("Excellent attempt! Focus on structure, mentioning architectural patterns, and real-world trade-offs.");
-        setIsEvaluatingAnswer(false);
-      }, 1000);
-      return;
-    }
-
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `Evaluate my answer to this technical interview question: "${analysisResult.suggestedInterviewQuestions[activeQuestionIndex]}"\n\nMy Answer:\n"${userAnswer}"\n\nProvide constructive, friendly senior recruiter feedback on whether this answer is complete, correct, and how to improve it.`
-            }]
-          }]
-        })
-      });
-      const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Good answer. Keep practicing!";
-      setInterviewFeedback(text);
+      const { feedback } = await evaluateInterviewAnswer(
+        analysisResult.suggestedInterviewQuestions[activeQuestionIndex],
+        userAnswer
+      );
+      setInterviewFeedback(feedback || 'Good answer. Keep practicing!');
     } catch (err) {
       console.error(err);
-      setInterviewFeedback("Failed to get live review. Your answer covers core points nicely.");
+      setInterviewFeedback('Failed to get live review. Your answer covers core points nicely.');
     } finally {
       setIsEvaluatingAnswer(false);
     }

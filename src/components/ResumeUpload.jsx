@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, FileText, Sparkles, AlertCircle, Play, Send, ChevronRight } from 'lucide-react';
-import { analyzeResume, isGeminiConfigured } from '../utils/gemini';
+import { analyzeResume } from '../utils/api';
 
 export default function ResumeUpload({ onAnalysisComplete }) {
   const [resumeImage, setResumeImage] = useState(null);

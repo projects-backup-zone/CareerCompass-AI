@@ -338,7 +338,7 @@ export default function LandingPage({ onLaunchDashboard }) {
             {[
               { q: "How does the image-based resume analysis work?", a: "We utilize Gemini 2.5 Flash's multimodal vision capabilities to extract structured text directly from PNG/JPG resume screenshots or photos, running OCR and alignment checks without intermediate text conversion." },
               { q: "What happens if my resume has low details?", a: "The AI agent dynamically spins up an interactive Assessment Q&A (3-5 questions) specifically targetted to verify your tech stack. This updates the Agent Confidence Meter before completing the alignment report." },
-              { q: "Is my personal data kept secure?", a: "Absolutely. Your uploaded images are processed entirely client-side via Google Generative AI browser execution, using your private environment API key." }
+              { q: "Is my personal data kept secure?", a: "Absolutely. Your uploaded resume images are sent over HTTPS to our secure serverless backend, which calls the Gemini API on your behalf. Your API key is never exposed to the browser — it lives exclusively as a server-side environment variable. No images or personal data are stored after the analysis is returned." }
             ].map((item, idx) => (
               <div key={idx} className="glass-panel p-6 rounded-2xl text-left">
                 <h4 className="text-base font-bold text-white mb-2">❓ {item.q}</h4>
